@@ -1,8 +1,8 @@
 # HS631_Exploratory_Data_Analysis_Graphics_Labs
 
-Information about the data set: https://archive.ics.uci.edu/ml/datasets.html
+## Information about the data set: https://archive.ics.uci.edu/ml/datasets.html
 
-Abstract: From National Institute of Diabetes and Digestive and Kidney Diseases; Includes cost data (donated by Peter Turney)
+## Abstract: From National Institute of Diabetes and Digestive and Kidney Diseases; Includes cost data (donated by Peter Turney)
 Attribute Information:
 1. Number of times pregnant
 2. Plasma glucose concentration a 2 hours in an oral glucose tolerance test
