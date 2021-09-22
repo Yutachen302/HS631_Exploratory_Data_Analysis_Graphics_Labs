@@ -36,8 +36,10 @@ data in need of cleaning.
 ```{r}
 Sum<-diab
 str(diab)
-freq_insu<- ggplot(diab, aes(insu))+ geom_histogram(color = "black", fill = "light blue", binwidth = 0.02)
+freq_insu<- ggplot(diab, aes(insu)) + geom_histogram(color = "black", fill = "light blue", binwidth = 0.02)
 freq_insu
+hist(diab$pres)
+str(diab)
 ```
 3. EDA: Plot the frequency distributions of all variables in diab and identify which variables seem to have invalid data in need of cleaning. Reconcile differences in #2 and #3, if there are any.
 ```{r}
