@@ -11,16 +11,65 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
+```{r}
+library(plotly)
+library(ggplot2)
+library(dplyr)
+library(VennDiagram)
+library(ggbeeswarm)
+```
 
 
 ```{r}
 #Read in dataset
 ```
-
+#control option M= commit
 ## Including Plots
 
 You can also embed plots, for example:
+1.Read the file diabetes2.csv into a dataframe named diab.
+```{r}
+diab<-read.csv(file = "./data/diabetes2.csv",header = T, sep = ",")
+```
+2.EDA: Calculate summary statistics on diab and identify which variables seem to have invalid
+data in need of cleaning.
+```{r}
+Sum<-diab
+str(diab)
+freq_insu<- ggplot(diab, aes(insu))+ geom_histogram(color = "black", fill = "light blue", binwidth = 0.02)
+freq_insu
+```
+3. EDA: Plot the frequency distributions of all variables in diab and identify which variables seem to have invalid data in need of cleaning. Reconcile differences in #2 and #3, if there are any.
+```{r}
+table(diab$preg)
+table(diab$plas)
+table(diab$pres)
+table(diab$skin)
+table(diab$insu)
+table(diab$mass)
+table(diab$pedi)
+table(diab$age)
+table(diab$class)
+```
+4. For the variable insu produce a new variable of logical that has the value TRUE at any position in the vector diab$insu.
+```{r}
+diab$insu[diab$insu==0]<-"NA"
+hist(diab$insu)
+```
+5a. For the variable pres (ie: blood pressure) produce a new variable of logical that has the value ZOMBIE at any position in the vector diab$pres where the blood pressure is that of a zombie rather than that of a human. Hint: zombies do not have a heartbeat – what BP results from no heartbeat?
+```{r}
+```{r}
 
+```
 
+```
+5b. For the variable pres use a logical expression from #4 to take a slice of the vector diab$pres. This slice will contain all the elements of diab$pres that need to be replaced with NA.
+```{r}
 
+```
+6. For the variable pres use your slice of diab$pres from #5 to replace the values that should be NA with the value NA.
+Hint: one way is to use something like this, filling in with your logical expression from #4 and #5: diab$pres[<logical expression>] <- NA
+```{r}
 
+```
+7. For the variable skin (ie: measure of skin fold thickness at triceps) use a logical expression to take a slice of the vector diab$skin. This slice will contain all the elements of diab$skin that need to be replaced with NA.
