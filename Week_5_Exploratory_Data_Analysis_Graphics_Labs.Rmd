@@ -52,69 +52,106 @@ table(diab$mass)
 table(diab$pedi)
 table(diab$age)
 table(diab$class)
+
+hist(diab$insu)
 ```
 4. For the variable insu produce a new variable of logical that has the value TRUE at any position in the vector diab$insu.
 ```{r}
-diab$insu[diab$insu==0]<-"NA"
+diab$insu_0<-ifelse(diab$insu==0, TRUE,FALSE)
+head(diab)
+table(diab$insu_0)
 
 ```
 5a. For the variable pres (ie: blood pressure) produce a new variable of logical that has the value ZOMBIE at any position in the vector diab$pres where the blood pressure is that of a zombie rather than that of a human. Hint: zombies do not have a heartbeat – what BP results from no heartbeat?
 ```{r}
-diab$pres[diab$pres==0]<-"zombies"
+diab$pres_0<-ifelse(diab$pres==0, "ZOMBIE","HUMAN")
 
 ```
 
 5b. For the variable pres use a logical expression from #4 to take a slice of the vector diab$pres. This slice will contain all the elements of diab$pres that need to be replaced with NA.
 ```{r}
-
+slice_pres0<-diab$skin[diab$pres==0]
+length(slice_pres0)
 ```
 6. For the variable pres use your slice of diab$pres from #5 to replace the values that should be NA with the value NA.
 Hint: one way is to use something like this, filling in with your logical expression from #4 and #5: diab$pres[<logical expression>] <- NA
 ```{r}
-
+diab$pres[diab$pres==0]<-"NA"
 ```
 7. For the variable skin (ie: measure of skin fold thickness at triceps) use a logical expression to take a slice of the vector diab$skin. This slice will contain all the elements of diab$skin that need to be replaced with NA.
 
 Hint: the slice will contain all values of diab$skin where the skin fold thickness is that of a skeleton rather than that of a human. (Skeletons have zero skin thickness).
 ```{r}
-
+slice_skin<-diab$skin[diab$skin==0]
 ```
 8. For the variable skin use your slice of diab$skin from #7 to replace the values that should be NA with the value NA.
 
 ```{r}
-
+diab$skin[diab$skin==0]<-"NA"
 ```
 9. Confirm that variable insu needs cleaning, clean them by replacing values that should be NA, with values within normal range (16 -180 mu U/ml).
 
 ```{r}
-
+diab$insu[diab$insu<16]<-"NA"
+diab$insu[diab$insu>=180]<-"NA"
 ```
 
 10. For all the variables other than pres and skin that need cleaning, clean them by replacing values that should be NA, with values between the 1st interquatile and mean of the variable.
 ```{r}
+summary(diab)
+
+diab$preg[diab$preg<=1]<-"NA"
+diab$preg[diab$preg>=3]<-"NA"
+
+diab$plas[diab$plas<=99]<-"NA"
+diab$plas[diab$plas>=117]<-"NA"
+
+diab$insu[diab$insu==0]<-"NA"
+diab$insu[diab$insu>=30]<-"NA"
+
+diab$mass[diab$mass<=27]<-"NA"
+diab$mass[diab$mass>=31.99]<-"NA"
+
+diab$pedi[diab$pedi<=0.2437]<-"NA"
+diab$pedi[diab$pedi>=0.3725]<-"NA"
+
+diab$age[diab$age>=24]<-"NA"
+diab$age[diab$age<=29]<-"NA"
+
+#diab$class[diab$class<=0]<-"NA"
+#diab$class[diab$class>=0.349]<-"NA"
+
 
 ```
 11. Execute the following commands, each one on a different column of diab:
 summary, range, IQR, quantile, median, mean
 Very briefly describe what the commands reveal
 ```{r}
-
+summary(diab)
 ```
 12. Create the grouped histogram for
 • class variable of diab. Include a title, x and y labels in your plot.
-• class variable insu
 ```{r}
+class(diab$class)
+diab$class<-as.factor(diab$class)
 
+count<-table(diab$class)
+
+barplot(count, main = "Diab Class", xlab = "Class", ylab = "Count", name.arg=c("0","1"))
 ```
 
 13. As in #12, plot the class variable of diab, but first typecast (coerce) the class variable to type factor. Include title and axis labels as before.
 ```{r}
+class(diab$class)
+diab$class<-as.factor(diab$class)
 
+pie(count, main = "Diab Class", xlab = "Class", ylab = "Count", name.arg=c("0","1"))
 ```
 14. Create a plot of your own choosing to show the distribution of a single variable OR the relation between 2 variables of the diab dataset. Include a title and axis labels in your plot.
 
 ```{r}
-
+count_2<-(diab$pres)
+barplot(table(count_2), xlab="Blood Pressure", ylab ="Number of People", main = "Blood Pressure")
 ```
 15. Note: this question is meant to be strange; figure out what is going on: Execute the following 2 lines of code:
 diab$col1 <-diab$pres/(diab$pres-median(diab$pres, na.rm=T) ) 
@@ -127,6 +164,14 @@ which(is.nan(diab$col2))
 
 After executing these, explain what happened in the creation of col1 and col2 to result in the output of each of the two calls to which
 ```{r}
+diab$col1 <-diab$pres/(diab$pres-median(diab$pres, na.rm=T) ) 
+diab$col2 <- sqrt(diab$pres/(diab$pres-median(diab$pres, na.rm=T) ) )
 
+which(is.infinite(diab$col1))
+which(is.nan(diab$col2))
+
+#is.finite() function is used to check if the elements of a vector are Finite values or not. It returns a boolean value for all the elements of the vector.
+
+#When execute is.nan, it gave a larger group of vectors. It is used to check if the vector contains any non number value as element. It returns a boolean value for all the elements of the vector.
 ```
 
