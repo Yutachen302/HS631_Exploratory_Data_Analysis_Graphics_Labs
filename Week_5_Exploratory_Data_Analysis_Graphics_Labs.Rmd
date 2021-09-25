@@ -164,12 +164,6 @@ which(is.nan(diab$col2))
 
 After executing these, explain what happened in the creation of col1 and col2 to result in the output of each of the two calls to which
 ```{r}
-diab$col1 <-diab$pres/(diab$pres-median(diab$pres, na.rm=T) ) 
-diab$col2 <- sqrt(diab$pres/(diab$pres-median(diab$pres, na.rm=T) ) )
-
-which(is.infinite(diab$col1))
-which(is.nan(diab$col2))
-
 #is.finite() function is used to check if the elements of a vector are Finite values or not. It returns a boolean value for all the elements of the vector.
 
 #When execute is.nan, it gave a larger group of vectors. It is used to check if the vector contains any non number value as element. It returns a boolean value for all the elements of the vector.
