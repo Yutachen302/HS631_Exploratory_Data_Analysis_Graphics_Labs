@@ -1,0 +1,967 @@
+---
+title: "Prediction of body fat team 2"
+author: "Neha/ Yu Ta"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    theme: united
+    highlight: espresso
+    css: style.css
+    fig.height: 9
+    fig.width: 9
+    df_print: kable
+    toc: no
+    toc_float:
+      collapsed: yes
+      smooth_scrol: yes
+    includes:
+      after_body: footer.html
+  pdf_document:
+    toc: no
+  word_document:
+    toc: no
+---
+
+```{js, echo=FALSE}
+$('.title').css('color', 'red')
+```
+
+```{css echo=FALSE}
+/* Define a margin before h2 element */
+h1  {
+#margin-top: 6em;
+  margin-top:20px;
+}
+```
+
+
+
+<style type="text/css">
+.main-container {
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 120px;
+  margin-bottom; 30px;
+  box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.40);
+  -webkit-box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.40);
+  -moz-box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.40);
+ 
+
+}
+</style>
+
+
+
+```{css, echo=FALSE}
+pre {
+  max-height: 600px;
+  overflow-y: auto;
+  
+}
+
+pre[class] {
+  max-height: 3000px;
+}
+```
+
+
+
+
+```{css, echo=FALSE}
+body {
+  background-color: #CDE8FF;
+  body: red;
+  #box-shadow: 0px 3px 50px 0px rgba(43,45,66,0.4);
+  #font-family: "Times New Roman", Times, serif;
+  #margin-left: 150px;
+  #box-shadow: -9px 0 5px -5px #888888, 9px 0 5px -5px #888888;
+  #box-shadow: -10px 0 13px -11px black, 10px 0 13px -11px black;
+  # box-shadow:0px 0px 2px 2px black;
+}
+```
+
+
+
+```{css, echo=FALSE}
+.reveal section img {
+border-color: #000;
+
+}
+```
+
+```{css, echo=FALSE}
+tr:nth-child(even) {
+  background: #D8D1C7;
+}
+
+```
+
+
+
+
+```{css, echo=FALSE}
+# .vl {
+#   border-left: 6px solid green;
+#   height: 500px;
+#   position: absolute;
+#   left: 50%;
+#   margin-left: -3px;
+#   top: 0;
+# }
+
+```
+
+<style>
+body, h1, h2, h3, h4 {
+    font-family: "Times New Roman, Times;
+}
+
+body {
+    border: 6px double #58514b;
+    outline: 4px outset rgba(28,110,164,0.61); 
+    outline-offset: 11px;
+    color:
+}
+a, a:hover {
+    color: ;
+}
+pre {
+    font-size: 12px;
+}
+</style>
+
+
+
+***
+<style>
+div.yellow { background-color:#FAEBD7; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "yellow">
+
+## System Specifications
+
+
+
+* A cross sectional study was conducted, where adults of 18–83 years were grouped into young (18–39 years) , middle aged (40–59 years) and elderly (>60 years). BF% was estimated from bioelectrical impedance analysis. Pearsons’ correlation coefficient(r) was calculated to see the relationship between BMI-BF% in the different age groups. Multiple regression analysis was performed to determine the effect of body density in the relationship and polynomial regression was carried out to see its linearity. The relationships between age-BMI, age-BF % were separately assessed.
+
+* Relation with density
+A person's body density depends on how much fat and fat-free mass he carries. Fat is found under the skin, around the internal organs, as an essential part of the central nervous system, as part of the structure of some internal organs and inside the bone marrow. The density of fat is fairly consistent at 0.91 kilogram per liter and is less dense that most of your fat-free mass. When you know your total body density, you still don't know what percentage of it is fat. But you can plug your body density into the following equation to get a general idea: percent body fat = (495 / Body Density) - 450.
+
+* Relation with age
+BMI progressively increases with age in women and plateaued between 40 and 70 years in men. At a fixed BMI, body fat mass increased with age (1.9 kg/decade), as did % fat (1.1–1.4% per decade). The relationship between BMI and % fat is found to be curvilinear (quadratic) rather than linear, with a weaker association at lower BMI. 
+
+* Null Hypothesis: There is no relationship between the percentage of body fat for an individual and the body density.
+
+
+```{r echo=FALSE, out.width='45%'}
+
+knitr::include_graphics('./Image.png')  # Project image
+
+```
+
+</div>
+..
+
+**** 
+<style>
+div.yellow { background-color:#FAEBD7; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "yellow">
+
+## Methodology
+
+ 
+
+* Restructure and Create new categorical variables for each variables in the data set with "Low", "Medium", "High"
+* Visualization- plot group histogram to see the relationship between outcome varaible(body fat) and other variables
+* Check if the data are normally distributed 
+* Check for correlation
+* Check for bias
+* Create linear regression models, find the best model to present our finding
+
+```{r echo=FALSE, out.width='45%'}
+#knitr::include_graphics('./link_budget_diagram.png') # your image
+
+```
+
+</div>
+****
+```{r, message=FALSE, warning=FALSE}
+library(plotly)
+library(stats)
+library(tidyr)
+library(DT)
+library(ggplot2)
+```
+## Results {.tabset .tabset-fade .tabset-pills}
+
+### Input
+
+
+___Returns: Dataframe of the dataset ___
+```{r}
+setwd("~/Desktop/HS631_Bio_Informatics/Repo/prediction_of_bodyfat-team-2/data")
+bodyfat<- read.csv2("bodyfat_1.csv", header=TRUE, sep=",") 
+head(as.data.frame(bodyfat),n = 10)
+head(bodyfat, 50)
+datatable(head(bodyfat,50))
+
+```
+
+___Returns: Find structure of the dataset
+```{r}
+getwd()
+str(bodyfat)
+dt_unique <- unique(bodyfat)
+nrow(dt_unique)
+rm(dt_unique)
+bodyfat_1 <- bodyfat
+```
+
+Restructure the datatypes
+```{r}
+bodyfat_1$Density<- as.numeric(as.character(bodyfat_1$Density))
+bodyfat_1$BodyFat<- as.numeric(as.character(bodyfat_1$BodyFat))
+bodyfat_1$Age<- as.numeric(as.character(bodyfat_1$Age))
+bodyfat_1$Weight<-as.numeric(as.character(bodyfat_1$Weight))
+bodyfat_1$Height<-as.numeric(as.character (bodyfat_1$Height))
+bodyfat_1$Neck<-as.numeric(as.character(bodyfat_1$Neck))
+bodyfat_1$Chest<-as.numeric(as.character(bodyfat_1$Chest))
+bodyfat_1$Abdomen<-as.numeric(as.character(bodyfat_1$Abdomen))
+bodyfat_1$Hip<-as.numeric(as.character(bodyfat_1$Hip))
+bodyfat_1$Thigh<-as.numeric(as.character(bodyfat_1$Thigh))
+bodyfat_1$Knee<-as.numeric(as.character(bodyfat_1$Knee))
+bodyfat_1$Ankle<-as.numeric(as.character(bodyfat_1$Ankle))
+bodyfat_1$Biceps<-as.numeric(as.character(bodyfat_1$Biceps))
+bodyfat_1$Forearm<-as.numeric(as.character(bodyfat_1$Forearm))
+bodyfat_1$Wrist<-as.numeric(as.character(bodyfat_1$Wrist))
+
+str(bodyfat_1)
+head(bodyfat,50)
+```
+
+___Returns: Check for NA`S
+
+```{r}
+any(is.na(bodyfat_1))
+```
+
+### Exploatory data analysis 
+
+
+Density (create new categorical variable for Density and bodyfat)
+```{r}
+summary(bodyfat_1$BodyFat)
+bodyfat_1$fat_value_cat[bodyfat_1$BodyFat>=0 & bodyfat_1$BodyFat<=14.20]="Low body fat"
+bodyfat_1$fat_value_cat[bodyfat_1$BodyFat>=14.21 & bodyfat_1$BodyFat<=26.80]="Medium body fat"
+bodyfat_1$fat_value_cat[bodyfat_1$BodyFat>=26.81 & bodyfat_1$BodyFat<=50.70]="High body fat"
+table(bodyfat_1$fat_value)
+any(is.na(bodyfat_1$fat_value_cat))
+
+summary(bodyfat_1$Density)
+bodyfat_1$Density_cat[bodyfat_1$Density>=0.995 & bodyfat_1$Density<=1.046]="Low density"
+bodyfat_1$Density_cat[bodyfat_1$Density>=1.0461 & bodyfat_1$Density<=1.074]="Medium density"
+bodyfat_1$Density_cat[bodyfat_1$Density>=1.0741 & bodyfat_1$Density<=1.1179]="High density"
+table(bodyfat_1$Density_cat)
+any(is.na(bodyfat_1$Density_cat))
+```
+
+Visualize 
+
+```{r}
+bodyfat_1$Density_cat<-factor(bodyfat_1$Density_cat, ordered = TRUE, levels = c("Low density","Medium density","High density"))
+
+bodyfat_1$fat_value_cat<-factor(bodyfat_1$fat_value_cat, ordered = TRUE, levels = c("Low body fat","Medium body fat","High body fat"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Density_cat))+geom_bar(position = position_dodge(preserve = "single"))
+
+```
+#Univariate Distribution for Weight variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+```{r}
+library(tidyverse)
+library(psych)
+plot(density(bodyfat_1$Density))
+hist(bodyfat_1$Density)
+summary(bodyfat_1$Density)
+skew(bodyfat_1$Density)
+kurtosi(bodyfat_1$Density)
+```
+
+Check for correlation
+#Negative correlated 
+```{r}
+cor.test(bodyfat_1$BodyFat, bodyfat_1$Density)
+```
+
+Age (create new categorical variable for Age)
+```{r}
+summary(bodyfat_1$Age)
+bodyfat_1$age_cat[bodyfat_1$Age>=22 & bodyfat_1$Age<=38]="Young"
+bodyfat_1$age_cat[bodyfat_1$Age>=39 & bodyfat_1$Age<=55]="Middle age"
+bodyfat_1$age_cat[bodyfat_1$Age>=56 & bodyfat_1$Age<=84]="Old"
+table(bodyfat_1$age_cat)
+
+```
+Visualize
+```{r}
+bodyfat_1$age_cat<-factor(bodyfat_1$age_cat, ordered = TRUE, levels = c("Young", "Middle age","Old"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=age_cat))+geom_bar(position = position_dodge(preserve = "single")) 
+getwd()
+```
+
+#Univariate Distribution for Age variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+```{r}
+plot(density(bodyfat_1$Age))
+hist(bodyfat_1$Age)
+summary(bodyfat_1$Age)
+skew(bodyfat_1$Age)
+kurtosi(bodyfat_1$Age)
+```
+
+Check for correlation
+#POSITIVE correlated 
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Age)
+```
+
+Weight (create new categorical variable for Weight)
+```{r}
+summary(bodyfat_1$Weight)
+bodyfat_1$weight_cat[bodyfat_1$Weight>=118.5 & bodyfat_1$Weight<=160.5]="Low weight"
+bodyfat_1$weight_cat[bodyfat_1$Weight>=160.5 & bodyfat_1$Weight<=199]="Midium weight"
+bodyfat_1$weight_cat[bodyfat_1$Weight>=199 & bodyfat_1$Weight<=368.1]="High weight"
+table(bodyfat_1$weight_cat)
+
+```
+
+Visualize
+```{r}
+bodyfat_1$weight_cat<-factor(bodyfat_1$weight_cat, ordered = TRUE, levels = c("Low weight", "Midium weight","High weight"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=weight_cat))+geom_bar(position = position_dodge(preserve = "single"))
+
+```
+
+#Univariate Distribution for Weight variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+```{r}
+plot(density(bodyfat_1$Weight))
+hist(bodyfat_1$Weight)
+summary(bodyfat_1$Weight)
+skew(bodyfat_1$Weight)
+kurtosi(bodyfat_1$Weight)
+```
+
+Check for correlation
+#POSITIVE correlated 
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Weight)
+```
+
+Height
+```{r}
+summary(bodyfat_1$Height)
+bodyfat_1$height_cat[bodyfat_1$Height>=29.5 & bodyfat_1$Height<=70]="short"
+bodyfat_1$height_cat[bodyfat_1$Height>=70.01 &bodyfat_1$Height<=74]="Midium"
+bodyfat_1$height_cat[bodyfat_1$Height>=74.01 & bodyfat_1$Height<=81.25]="tall"
+table(bodyfat_1$height_cat)
+
+any(is.na(bodyfat_1$height_cat))
+```
+
+visualize
+```{r}
+bodyfat_1$height_cat<-factor(bodyfat_1$height_cat, ordered = TRUE, levels = c("short", "Midium","tall"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=height_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+#Univariate Distribution for Height variable
+#Normally distributed
+#Negative skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Height))
+hist(bodyfat_1$Height)
+summary(bodyfat_1$Height)
+skew(bodyfat_1$Height)
+kurtosi(bodyfat_1$Height)
+```
+
+Check for correlation 
+#Negative correlation 
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Height)
+```
+
+
+
+Neck(create new categorical variable for Neck)
+```{r}
+summary(bodyfat_1$Neck)
+bodyfat_1$neck_cat[bodyfat_1$Neck>=31.1 & bodyfat_1$Neck<=37.9]="Low"
+bodyfat_1$neck_cat[bodyfat_1$Neck>=37.91 & bodyfat_1$Neck<=41.5]="Midium"
+bodyfat_1$neck_cat[bodyfat_1$Neck>=41.51 & bodyfat_1$Neck<=54.7]="High"
+table(bodyfat_1$neck_cat)
+
+any(is.na(bodyfat_1$neck_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$age_cat<-factor(bodyfat_1$neck_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=neck_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+#Univariate Distribution for Neck variable
+#Normally distributed
+#Positive skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Neck))
+hist(bodyfat_1$Neck)
+summary(bodyfat_1$Neck)
+skew(bodyfat_1$Neck)
+kurtosi(bodyfat_1$Neck)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Neck)
+```
+
+Chest (create new categorical variable for chest)
+```{r}
+summary(bodyfat_1$Chest)
+bodyfat_1$chest_cat[bodyfat_1$Chest>=79.3 & bodyfat_1$Chest<=96.47]="Low"
+bodyfat_1$chest_cat[bodyfat_1$Chest>=96.48 & bodyfat_1$Chest<=107.33]="Medium"
+bodyfat_1$chest_cat[bodyfat_1$Chest>=107.34 & bodyfat_1$Chest<=140]="High"
+
+any(is.na(bodyfat_1$chest_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$chest_cat<-factor(bodyfat_1$chest_cat, ordered  = TRUE)
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=chest_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+#Univariate Distribution for chest variable
+#Normally distributed
+#Positive skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Chest))
+hist(bodyfat_1$Chest)
+summary(bodyfat_1$Chest)
+skew(bodyfat_1$Chest)
+kurtosi(bodyfat_1$Chest)
+```
+
+check for correlation
+#positive correlation 
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Chest)
+```
+
+Abdomen (create new categorical variable for Abdomen)
+```{r}
+summary(bodyfat_1$Abdomen)
+bodyfat_1$abdomen_cat[bodyfat_1$Abdomen>=69.40 & bodyfat_1$Abdomen<=86.70]="Low"
+bodyfat_1$abdomen_cat[bodyfat_1$Abdomen>=86.71 & bodyfat_1$Abdomen<=101.2]="Midium"
+bodyfat_1$abdomen_cat[bodyfat_1$Abdomen>=101.21 & bodyfat_1$Abdomen<=151.7]="High"
+table(bodyfat_1$abdomen_cat)
+
+any(is.na(bodyfat_1$neck_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$abdomen_cat<-factor(bodyfat_1$abdomen_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=abdomen_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+#Univariate Distribution for abdomen variable
+#Normally distributed
+#Positive skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Abdomen))
+hist(bodyfat_1$Abdomen)
+summary(bodyfat_1$Abdomen)
+skew(bodyfat_1$Abdomen)
+kurtosi(bodyfat_1$Abdomen)
+
+```
+
+Check for correlation
+#positive
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Abdomen)
+```
+
+Hip (create new categorical variable for Hip)
+<<<<<<< HEAD
+```{r}
+summary(bodyfat_1$Hip)
+bodyfat_1$Hip_cat[bodyfat_1$Hip>=80 & bodyfat_1$Hip<=97.28]="Small"
+bodyfat_1$Hip_cat[bodyfat_1$Hip>=97.29 & bodyfat_1$Hip<=105.60]="Midium"
+bodyfat_1$Hip_cat[bodyfat_1$Hip>=105.61 & bodyfat_1$Hip<=152]="Large"
+table(bodyfat_1$Hip_cat)
+```
+
+Visualize
+```{r}
+bodyfat_1$Hip_cat<-factor(bodyfat_1$Hip_cat, ordered = TRUE, levels = c("Small", "Midium","Large"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Hip_cat))+geom_bar(position = position_dodge(preserve = "single"))
+
+```
+
+#Univariate Distribution for Hip variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+
+```{r}
+library(tidyverse)
+library(psych)
+plot(density(bodyfat_1$Hip))
+hist(bodyfat_1$Hip)
+summary(bodyfat_1$Hip)
+skew(bodyfat_1$Hip)
+kurtosi(bodyfat_1$Hip)
+```
+
+Check for correlation
+#POSITIVE correlated 
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Hip)
+```
+
+Thigh(create new categorical variable for Thigh)
+```{r}
+summary(bodyfat_1$Thigh)
+bodyfat_1$Thigh_cat[bodyfat_1$Thigh>=47.2 & bodyfat_1$Thigh<=57.60]="Low"
+bodyfat_1$Thigh_cat[bodyfat_1$Thigh>=57.61 & bodyfat_1$Thigh<=64.20]="Midium"
+bodyfat_1$Thigh_cat[bodyfat_1$Thigh>=64.21 & bodyfat_1$Thigh<=91]="High"
+table(bodyfat_1$Thigh_cat)
+
+any(is.na(bodyfat_1$Thigh_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Thigh_cat<-factor(bodyfat_1$Thigh_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Thigh_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Thigh variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Thigh))
+hist(bodyfat_1$Thigh)
+summary(bodyfat_1$Thigh)
+skew(bodyfat_1$Thigh)
+kurtosi(bodyfat_1$Thigh)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Thigh)
+```
+
+Knee(create new categorical variable for Knee)
+```{r}
+summary(bodyfat_1$Knee)
+bodyfat_1$Knee_cat[bodyfat_1$Knee>=33 & bodyfat_1$Knee<=38.30]="Low"
+bodyfat_1$Knee_cat[bodyfat_1$Knee>=38.31 & bodyfat_1$Knee<=41.70]="Midium"
+bodyfat_1$Knee_cat[bodyfat_1$Knee>=41.71 & bodyfat_1$Knee<=53]="High"
+table(bodyfat_1$Knee_cat)
+
+any(is.na(bodyfat_1$Knee_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Knee_cat<-factor(bodyfat_1$Knee_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Knee_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Knee variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Knee))
+hist(bodyfat_1$Knee)
+summary(bodyfat_1$Knee)
+skew(bodyfat_1$Knee)
+kurtosi(bodyfat_1$Knee)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Knee)
+```
+
+Ankle(create new categorical variable for Ankle)
+```{r}
+summary(bodyfat_1$Ankle)
+bodyfat_1$Ankle_cat[bodyfat_1$Ankle>=19 & bodyfat_1$Ankle<=23.3]="Low"
+bodyfat_1$Ankle_cat[bodyfat_1$Ankle>=23.4 & bodyfat_1$Ankle<=25.6]="Midium"
+bodyfat_1$Ankle_cat[bodyfat_1$Ankle>=25.7 & bodyfat_1$Ankle<=37]="High"
+table(bodyfat_1$Ankle_cat)
+
+any(is.na(bodyfat_1$Ankle_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Ankle_cat<-factor(bodyfat_1$Ankle_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Ankle_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Ankle variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+
+```{r}
+plot(density(bodyfat_1$Ankle))
+hist(bodyfat_1$Ankle)
+summary(bodyfat_1$Ankle)
+skew(bodyfat_1$Ankle)
+kurtosi(bodyfat_1$Ankle)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Ankle)
+```
+
+Biceps(create new categorical variable for Biceps)
+```{r}
+summary(bodyfat_1$Biceps)
+bodyfat_1$Biceps_cat[bodyfat_1$Biceps>=24.80 & bodyfat_1$Biceps<=31.70]="Low"
+bodyfat_1$Biceps_cat[bodyfat_1$Biceps>=31.71 & bodyfat_1$Biceps<=36.20]="Midium"
+bodyfat_1$Biceps_cat[bodyfat_1$Biceps>=36.21 & bodyfat_1$Biceps<=49]="High"
+table(bodyfat_1$Biceps_cat)
+
+any(is.na(bodyfat_1$Biceps_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Ankle_cat<-factor(bodyfat_1$Biceps_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Biceps_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Bicep variable
+#Normally distributed
+#Positively skewed
+#Leptokurtic
+
+```{r}
+str(bodyfat_1)
+plot(density(bodyfat_1$Biceps))
+summary(bodyfat_1$Biceps)
+skew(bodyfat_1$Biceps)
+kurtosi(bodyfat_1$Biceps)
+```
+
+check for correlation 
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Biceps)
+```
+
+Forearm(create new categorical variable for Forearm)
+```{r}
+summary(bodyfat_1$Forearm)
+bodyfat_1$Forearm_cat[bodyfat_1$Forearm>=21 & bodyfat_1$Forearm<=28.70]="Low"
+bodyfat_1$Forearm_cat[bodyfat_1$Forearm>=28.71 & bodyfat_1$Forearm<=31.70]="Midium"
+bodyfat_1$Forearm_cat[bodyfat_1$Forearm>=31.71 & bodyfat_1$Forearm<=38]="High"
+table(bodyfat_1$Forearm_cat)
+
+any(is.na(bodyfat_1$Forearm_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Forearm_cat<-factor(bodyfat_1$Forearm_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Forearm_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Forearm variable
+#Normally distributed
+#Negatively skewed
+#Leptokurtic
+
+```{r}
+str(bodyfat_1)
+plot(density(bodyfat_1$Forearm))
+summary(bodyfat_1$Forearm)
+skew(bodyfat_1$Forearm)
+kurtosi(bodyfat_1$Forearm)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Forearm)
+```
+
+Wrist(create new categorical variable for Wrist)
+```{r}
+summary(bodyfat_1$Wrist)
+bodyfat_1$Wrist_cat[bodyfat_1$Wrist>=15 & bodyfat_1$Wrist<=18.57]="Low"
+bodyfat_1$Wrist_cat[bodyfat_1$Wrist>=18.58 & bodyfat_1$Wrist<=20.30]="Midium"
+bodyfat_1$Wrist_cat[bodyfat_1$Wrist>=20.31 & bodyfat_1$Wrist<=24]="High"
+table(bodyfat_1$Wrist_cat)
+
+any(is.na(bodyfat_1$Wrist_cat))
+```
+
+visualization
+```{r}
+bodyfat_1$Wrist_cat<-factor(bodyfat_1$Wrist_cat, ordered = TRUE, levels = c("Low", "Midium","High"))
+
+ggplot(bodyfat_1, aes(x=fat_value_cat, fill=Wrist_cat))+geom_bar(position = position_dodge(preserve = "single"))
+```
+
+#Univariate Distribution for Wrist variable
+#Normally distributed
+#Positively skewed
+#Platykurtic
+
+```{r}
+hist(bodyfat_1$Wrist)
+summary(bodyfat_1$Wrist)
+skew(bodyfat_1$Wrist)
+kurtosi(bodyfat_1$Wrist)
+```
+
+check for correlation
+#positive correlation
+```{r}
+cor(bodyfat_1$BodyFat, bodyfat_1$Wrist)
+```
+
+### Bias analysis
+
+
+___Returns:Check for bias
+Choose a demographic variable that can identify the type of participants (Age)
+#Value of CI is very close to 0 = somewhat balance
+```{r}
+table(bodyfat_1$age_cat)
+summary(bodyfat_1$Age)
+bodyfat_1$age_cat_2[bodyfat_1$Age>=22 & bodyfat_1$Age<=46.38]<-"young"
+bodyfat_1$age_cat_2[bodyfat_1$Age>=46.39 & bodyfat_1$Age<=84]<-"old"
+table(bodyfat_1$age_cat_2)
+na<-463
+nb<-545
+CI<-(na-nb)/(na+nb)
+CI
+
+```
+
+
+___Returns: Correlation matrix
+Convert all variavles from bodyfat dataset to numerical variables 
+```{r}
+bodyfat$Density <- as.numeric(bodyfat$Density)
+bodyfat$BodyFat<- as.numeric(bodyfat$BodyFat)
+bodyfat$Age<- as.numeric(bodyfat$Age)
+bodyfat$Weight<-as.numeric(bodyfat$Weight)
+bodyfat$Height<-as.numeric(bodyfat$Height)
+bodyfat$Neck<-as.numeric(bodyfat$Neck)
+bodyfat$Chest<-as.numeric(bodyfat$Chest)
+bodyfat$Abdomen<-as.numeric(bodyfat$Abdomen)
+bodyfat$Hip<-as.numeric(bodyfat$Hip)
+bodyfat$Thigh<-as.numeric(bodyfat$Thigh)
+bodyfat$Knee<-as.numeric(bodyfat$Knee)
+bodyfat$Ankle<-as.numeric(bodyfat$Ankle)
+bodyfat$Biceps<-as.numeric(bodyfat$Biceps)
+bodyfat$Forearm<-as.numeric(bodyfat$Forearm)
+bodyfat$Wrist<-as.numeric(bodyfat$Wrist)
+str(bodyfat)
+```
+
+___Returns: Plot correlation matrix
+```{r}
+library("Hmisc")
+library("corrplot")
+bodyfat.cor<-cor(bodyfat)
+corrplot(bodyfat.cor,method = "number", number.cex = 0.6)
+```
+
+
+___Returns: Linear Regression
+Building model_1(include all variables)
+P Value: < 2.2e-16, highly significant, which means at least one of the predictor variables is significantly related to the outcome variable(BodyFat). 
+
+```{r}
+model_1<-lm(BodyFat~Density+Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Biceps+Forearm+Wrist,  data = bodyfat)
+summary(model_1)
+```
+
+___Returns:Create prediction Equation for Regression Model (pred1)
+```{r}
+
+bodyfat$bodyfat_pred_1=(-396.8*(bodyfat$Density)) + (-0.008628*(bodyfat$Age)) + (-0.1458*(bodyfat$Weight)) + (0.0988*(bodyfat$Height)) + (0.163*(bodyfat$Neck)) +(0.09513*(bodyfat$Chest)) + (0.1057*(bodyfat$Abdomen)) + (0.1925*(bodyfat$Hip)) +(0.02423*(bodyfat$Thigh)) + (0.204*(bodyfat$Knee)) + (0.1121*(bodyfat$Ankle)) +
+(0.04691*(bodyfat$Biceps)) + (0.085*(bodyfat$Forearm)) + (0.8928*(bodyfat$Wrist)+381.2)
+
+head(bodyfat)
+```
+
+___Returns:Building model_2(with no outliers)
+#Check for outliers
+```{r}
+
+cooksd<-cooks.distance(model_1)
+#plot the cook's distance
+sample_size<-nrow(bodyfat)
+plot(cooksd)
+
+abline(h=8/sample_size, col="red")
+#Add cutoff line 
+text(x=1:length(cooksd)+1, y=cooksd, labels=ifelse(cooksd>8/sample_size, names(cooksd),""),col="red")
+
+```
+
+___Returns:Remove outliers
+```{r}
+
+top_x_outliers<-9
+influential<-as.numeric(names(sort(cooksd, decreasing = TRUE)[1:top_x_outliers]))
+#subset dataset without outliers
+dataframe_no_outliers<-bodyfat[-influential, ]
+
+```
+
+___Returns:Build linear regression model
+```{r}
+model_no_outlier<-lm(BodyFat~Density+Weight+Height+Neck+Chest+Abdomen+Hip+Knee+Wrist,data =dataframe_no_outliers)
+summary(model_no_outlier) 
+```
+
+___Returns:Create prediction Equation for Regression Model (pred2: without outliers)
+```{r}
+
+bodyfat$bodyfat_pred_2=(-427.1642*(bodyfat$Density)) + (-0.16284*(bodyfat$Weight)) + (0.28599*(bodyfat$Height)) + (0.29722*(bodyfat$Neck)) +(0.10374*(bodyfat$Chest)) + (0.06570*(bodyfat$Abdomen)) + (0.25343*(bodyfat$Hip)) + (0.15182*(bodyfat$Knee)) + (0.88570*(bodyfat$Wrist)+404.55891)
+
+
+head(bodyfat)
+```
+
+
+___Returns:building model_3
+Check for variable importance
+```{r}
+#prepate training scheme
+library(varImp)
+library(caret)
+str(bodyfat)
+
+control<-trainControl(method="repeatedcv", number=10, repeats=3)
+#train control model
+lm_model<-train(BodyFat~.,data=dataframe_no_outliers, method="lm", preProcess="scale", trControl= control)
+#estimate variables importance
+importance<- varImp(lm_model, scale=FALSE)
+#summarize importance
+print(importance)
+plot(importance)
+
+```
+
+___Returns:building model_3(only with variables show importance to the outcome variable Bodyfat)
+```{r}
+model_3<-lm(BodyFat~Density+Weight+Height,data = bodyfat)
+summary(model_3)
+```
+
+___Returns:Create prediction Equation for Regression Model (pred3)
+```{r}
+
+bodyfat$bodyfat_pred_3=(-424.7*(bodyfat$Density)) + (-0.03045*(bodyfat$Weight)) +  (0.1631*(bodyfat$Height)+440.4)
+
+
+head(bodyfat)
+
+```
+
+
+___Returns:Plot to see if the models meet linear regression assumptions, compare them and choose the best model
+
+Plot model_1
+#Residual standard error: 1.654 on 993 degrees of freedom
+#Multiple R-squared:  0.9621
+```{r}
+par(mfrow = c(2, 2))
+plot(model_1)
+```
+
+___Returns:Plot model_2
+#Residual standard error: 1.289 on 989 degrees of freedom
+#Multiple R-squared:  0.9767
+```{r}
+par(mfrow = c(2, 2))
+plot(model_no_outlier)
+```
+
+___Returns:Plot model_3 
+
+#Residual standard error: 2.664 on 1004 degrees of freedom
+#Multiple R-squared:  0.9006,	Adjusted R-squared:  0.9003 
+```{r}
+par(mfrow = c(2, 2))
+plot(model_3)
+```
+
+
+### Conclusion
+
+Hence, we performed various analysis on our dataset. Analysis involved restructuring data types, creating new categorical variables, performing univariate distribution, check for correlation on all the variables, check for bias, performed linear regression by building model 1, model 2, model 3, creating prediction equation, checking for outliers, check for importance for different model and compared models for residual standard error and R-Squared. 
+
+
+<style>
+div.yellow { background-color:#FAEBD7; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "yellow">
+
+* Null Hypothesis: There is no relationship between the percentage of body fat for an individual and the body density.
+* After comparing model 1, model 2 and model 3 we concluded that model 2 is better to present the relationship between the outcome variable (BodyFat) and other variables. As it has smaller Residual standard error(1.937 on 1004 degrees of freedom) and higher R-squared values(0.9475). 
+* The research reject the null hypothesis that we see a strong relationship, negative correlation between the outcome variable(body fat), and the predictor variable(body density)
+
+
+</div>
+
+***
